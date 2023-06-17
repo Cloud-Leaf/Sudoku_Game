@@ -40,6 +40,7 @@
 
 
 # 过滤文件夹Debug,Release,obj和.vs
+Sudoku/Sudoku/Debug/
 Sudoku/Debug/
 Sudoku/Release/
 Sudoku/obj/
