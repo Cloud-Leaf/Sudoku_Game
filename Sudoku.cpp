@@ -208,7 +208,7 @@ void Sudoku::isonly(int i, int j) {
 	if (solvenum >= 2)return;
 	int row = i;
 	int col = j;
-	bool temp = true;
+	//bool temp = true;
 	for (; row < GRID_SIZE; row++) {
 		for (; col < GRID_SIZE; col++) {
 			if (grid[row][col] == 0) {
