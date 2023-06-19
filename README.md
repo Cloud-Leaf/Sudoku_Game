@@ -16,11 +16,11 @@
 
  1. 请找到sudoku.exe程序所在文件夹，并在此文件夹内运行命令行：
 
-    ![image-20230619222219089](manual-pic\image-1.png)
+    ![image-20230619222219089](./manual-pic/image-1.png)
 
  2. 在命令行中输入指令运行程序，具体用法参见下文：
 
-    ![image-20230619222700751](manual-pic\image-2.png)
+    ![image-20230619222700751](./manual-pic/image-2.png)
 
 ### 2.2 参数处理
 
