@@ -1,0 +1,18 @@
+sudoku
+sudoku -c 100
+sudoku -c 1000000
+sudoku -c 0
+sudoku -c 0 -n
+sudoku -s nofile
+sudoku -s SudokuGame.txt
+sudoku -s nofile 0
+sudoku -n
+sudoku -n 0
+sudoku -n 10
+sudoku -n 10 -u
+sudoku -n 10 -s
+sudoku -n 10 -m 2
+sudoku -n 10 -m 5
+sudoku -n 10 -r 20~55
+sudoku -n 10 -r 0~81
+sudoku -n -s

@@ -296,7 +296,7 @@ static void Save2File(const vector<Sudoku>& finals, const string& filepath) {
 	int count = 1;
 	if (file.is_open()) {
 		for (const auto& f : finals) {
-			file << "终局" << count << endl;
+			file << "盘面" << count << endl;
 			for (const auto& r : f.grid) {
 				for (int v : r) {
 					if (v == 0)
@@ -370,11 +370,10 @@ void Para_Handle(int argc, char* argv[]) {
 	int m(1);//游戏难度
 	int min(0);//挖空最小值
 	int max(81);//挖空最大值
-	bool u(0);//是否解唯一
 	string filepath;
 	Sudoku sdk;
 
-	if (argc == 1) { cout << "请输入参数"; return; }
+	if (argc == 1) { cout << "请输入参数，具体使用方法参见用户手册" << endl; return; }
 
 	string fir_arg = argv[1];//获取第一个参数
 	if (fir_arg == "-c") {
@@ -388,7 +387,7 @@ void Para_Handle(int argc, char* argv[]) {
 			}
 			else { cout << "请正确输入要生成的终局数量，范围1~100w" << endl; return; }
 		}
-		else { cout << "请正确输入参数" << endl; return; }
+		else { cout << "请正确输入参数-c <count>，具体使用方法参见用户手册" << endl; return; }
 	}
 	else if (fir_arg == "-s") {
 		//根据文件解局
@@ -401,24 +400,20 @@ void Para_Handle(int argc, char* argv[]) {
 				Save2File(SovledGame, "Ans.txt");
 			}
 		}
-		else { cout << "请正确输入参数" << endl; return; }
+		else { cout << "请正确输入参数-s <filepath>，具体使用方法参见用户手册" << endl; return; }
 	}
 	else if (fir_arg == "-n") {
 		//生成游戏
+		if (argc < 3) { cout << "请正确输入参数-n <count>，具体使用方法参见用户手册" << endl; return; }
+		n = stoi(argv[2]);
+		if (!InRange(n, 1, 10000)) { cout << "请正确输入要生成的终局数量，范围1~1w" << endl; return; }
 		if (argc == 3) {
-			n = stoi(argv[2]);
-			if (InRange(n, 1, 10000)) {
-				sdk.Gen_Finals(n);
-				gen_sudokugame(min, max);
-				Save2File(SudokuGame, "SudokuGame.txt");
-				return;
-			}
-			else { cout << "请正确输入要生成的终局数量，范围1~1w" << endl; return; }
+			sdk.Gen_Finals(n);
+			gen_sudokugame(min, max);
+			Save2File(SudokuGame, "SudokuGame.txt");
+			return;
 		}
 		else if (argc == 4) {
-			n = stoi(argv[2]);
-			if (!InRange(n, 1, 10000)) { cout << "请正确输入要生成的终局数量，范围1~1w" << endl; return; }
-
 			string sec_arg = argv[3];
 			if (sec_arg == "-u") {
 				sdk.Gen_Finals(n);
@@ -426,12 +421,9 @@ void Para_Handle(int argc, char* argv[]) {
 				Save2File(SudokuGame, "SudokuGame.txt");
 				return;
 			}
-			else { cout << "请正确输入要生成的终局数量，范围1~1w" << endl; return; }
+			else { cout << "请正确输入参数，具体使用方法参见用户手册" << endl; return; }
 		}
 		else if (argc == 5) {
-			n = stoi(argv[2]);
-			if (!InRange(n, 1, 10000)) { cout << "请正确输入要生成的终局数量，范围1~1w" << endl; return; }
-			
 			string sec_arg = argv[3];
 			if (sec_arg == "-m") {
 				m = stoi(argv[4]);
@@ -441,6 +433,7 @@ void Para_Handle(int argc, char* argv[]) {
 					Save2File(SudokuGame, "SudokuGame.txt");
 					return;
 				}
+				else { cout << "请正确输入参数-m <mode>，具体使用方法参见用户手册" << endl; return; }
 			}
 			else if (sec_arg == "-r") {
 				istringstream range(argv[4]);
@@ -449,20 +442,19 @@ void Para_Handle(int argc, char* argv[]) {
 				getline(range, rmax, '~');
 				min = stoi(rmin);
 				max = stoi(rmax);
-				if (min > max|| !InRange(max, 20, 55)|| !InRange(min, 20, 55)) { cout << "滚你妈蛋去" << endl; return; }
+				if (min > max|| !InRange(max, 20, 55)|| !InRange(min, 20, 55)) { cout << "请正确输入参数-r <range>，具体使用方法参见用户手册" << endl; return; }
 				sdk.Gen_Finals(n);
-				//cout << min << max; return;
 				gen_sudokugame(min, max);
 				Save2File(SudokuGame, "SudokuGame.txt");
 				return;
 			}
 		}
-		else if (argc == 7) {
+		/*else if (argc == 7) {
 			{ cout << "请正确输入参数" << endl; return; }
-		}
-		else { cout << "请正确输入参数" << endl; return; }
+		}*/
+		else { cout << "请正确输入参数-n <count>，具体使用方法参见用户手册" << endl; return; }
 	}
-	else { cout << "请正确输入参数" << endl; return; }
+	else { cout << "请正确输入参数，具体使用方法参见用户手册" << endl; return; }
 }
 
 int main(int argc, char* argv[]) {
