@@ -158,3 +158,27 @@ sdk.Gen_Finals(n);//生成n个终局
 Save2File(Finals, "Finals.txt");//将终局写入Finals.txt文件中
 ```
 
+声明数独类对象，使用对象方法生成n个不重复终局到Finals集合中，之后使用存文件函数将集合中数独存入对应文件中（可自定义文件路径）。
+
+#### 3.2.1 生成数独游戏
+
+```c++
+#include "Sudoku.cpp"
+Sudoku sdk;
+sdk.Gen_Finals(n);//生成n个终局
+gen_sudokugame(min, max, m, n);//输入挖空范围min~max，难度m(省略为1)，是否唯一解n(省略为0)
+Save2File(SudokuGame, "SudokuGame.txt");//将终局写入Finals.txt文件中
+```
+
+声明数独类对象，使用对象方法生成n个不重复终局到Finals集合中，然后根据Finals集合中的终局生成游戏存入容器SudokuGame中，最后使用存文件函数将集合中数独存入对应文件中（可自定义文件路径）。
+
+#### 3.2.1解局数独游戏
+
+```c++
+#include "Sudoku.cpp"
+int n = Load2SdkGame("SudokuGame.txt");//从SudokuGame.txt中读取游戏，数量为n
+SovleSdkg();//解局
+Save2File(SovledGame, "Ans.txt");//结局结果存入Ans.txt
+```
+
+使用读取文件函数从输入路径中读取数独游戏存入容器SudokuGame中，然后调用解局函数针对容器内盘面解局，最后使用存文件函数将集合中数独存入对应文件中（可自定义文件路径）。
