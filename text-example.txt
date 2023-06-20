@@ -15,4 +15,9 @@ sudoku -n 10 -m 2
 sudoku -n 10 -m 5
 sudoku -n 10 -r 20~55
 sudoku -n 10 -r 0~81
-sudoku -n -s
+#sudoku -n -s
+
+sudoku -n 10 -m 3
+sudoku -a
+sudoku -n 10 -m 1 -u
+sudoku -n 10 -r 50~55

@@ -268,7 +268,7 @@ void gen_sudokugame(int r1, int r2, int m, bool u)
 {
 	if(!u)
 		for (auto f : Finals) {
-			f.generate_empty(r1, r2);
+			f.generate_empty(r1, r2, m);
 			SudokuGame.push_back(f);
 		}
 	else {
