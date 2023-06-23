@@ -1,47 +1,53 @@
-参数设计：
-sudoku
-sudoku -c 100
-sudoku -c 1000000
-sudoku -c 0
-sudoku -c 0 -n
-sudoku -s nofile
-sudoku -s SudokuGame.txt
-sudoku -s nofile 0
-sudoku -n
-sudoku -n 0
-sudoku -n 10
-sudoku -n 10 -u
-sudoku -n 10 -s
-sudoku -n 10 -m 2
-sudoku -n 10 -m 5
-sudoku -n 10 -r 20~55
-sudoku -n 10 -r 0~81
-sudoku -n -s
-sudoku -n 10 -m 3
-sudoku -a
-sudoku -n 10 -m 1 -u
-sudoku -n 10 -r 50~55
-测试运行参数：
+@echo off
+
+set EXECUTABLE=D:\shudu\Sudoku\Debug\Sudoku.exe
+set SOURCES=D:\shudu\Sudoku
+
+echo ========================================
+echo Running integration tests...Right
+echo ========================================
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:none.cov -- %EXECUTABLE% 
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:c100.cov -- %EXECUTABLE% -c 100
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:c0.cov -- %EXECUTABLE% -c 0
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:c0n.cov -- %EXECUTABLE% -c 0 -n
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:sn.cov -- %EXECUTABLE% -s nofile
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:ss.cov -- %EXECUTABLE% -s SudokuGame.txt
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:sn0~35.cov -- %EXECUTABLE% -s nofile 0
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n.cov -- %EXECUTABLE% -n
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n0.cov -- %EXECUTABLE% -n 0
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10.cov -- %EXECUTABLE% -n 10
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10u.cov -- %EXECUTABLE% -n 10 -u
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10s.cov -- %EXECUTABLE% -n 10 -s
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10m2.cov -- %EXECUTABLE% -n 10 -m 2
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10m5.cov -- %EXECUTABLE% -n 10 -m 5
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10r20.cov -- %EXECUTABLE% -n 10 -r 20~55
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10r.cov -- %EXECUTABLE% -n 10 -r 0~81
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:ns~25.cov -- %EXECUTABLE% -n -s
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:m3.cov -- %EXECUTABLE% -n 10 -m 3
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:a.cov -- %EXECUTABLE% -a
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10m1u.cov -- %EXECUTABLE% -n 10 -m 1 -u
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:n10r5055.cov -- %EXECUTABLE% -n 10 -r 50~55
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:c363000.cov -- %EXECUTABLE% -c 363000
+
 OpenCppCoverage.exe --sources %SOURCES% --export_type=binary:nr.cov -- %EXECUTABLE% -n 100 -r 54~55

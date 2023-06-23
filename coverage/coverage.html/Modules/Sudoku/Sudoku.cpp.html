@@ -1,0 +1,489 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+        <meta charset="utf-8"/>
+	    <title>Sudoku.cpp</title>
+	    <link href="../../third-party/google-code-prettify/prettify-CppCoverage.css" type="text/css" rel="stylesheet" />
+	    <script type="text/javascript" src="../../third-party/google-code-prettify/prettify.js"></script>
+	</head>
+    <body onload="prettyPrint()">
+        <h4></h4>
+        <pre class="prettyprint lang-cpp linenums">
+#include&lt;iostream&gt;
+#include&lt;vector&gt;
+#include&lt;set&gt;
+#include&lt;unordered_set&gt;
+#include&lt;algorithm&gt;
+#include&lt;string&gt;
+#include &lt;fstream&gt;
+#include &lt;time.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;sstream&gt;
+
+#define FIR_INT 362880
+#define GRID_SIZE 9
+
+using namespace std;
+
+static int initial_line[9] = { 1,2,3,4,5,6,7,8,9 };//Éú³ÉÖÕ¾ÖÓÃÐÐ
+int solvenum = 0;
+
+class Sudoku {
+public:
+	vector&lt;vector&lt;int&gt;&gt; grid;//Êý¶ÀÅÌÃæ
+<span style = "background-color:#dfd">	int shift[8] = { 3, 6, 2, 5, 8, 1, 4, 7 };</span>
+
+	Sudoku();//Ä¬ÈÏ¹¹Ôìº¯Êý
+	Sudoku(const Sudoku&amp; sudoku);//¿½±´¹¹Ôì
+	void Gen_Final(int fline[]);//²úÉúÒ»¸öÖÕ¾Ö
+	void Gen_Finals(int n);//²úÉún¸öÖÕ¾Ö
+	void generate_empty(int r1, int r2, int m = 1);//Éú³ÉÒ»¾ÖÓÎÏ·
+	void generate_only_empty(int m = 1);//Éú³ÉÎ¨Ò»½âÓÎÏ· 
+	bool isSafe(int row, int col, int num);//ÅÐ¶ÏnumÊý×ÖÔÚ[row,col]´¦ÊÇ·ñºÏ·¨
+	void isonly(int i, int j);//ÅÐ¶ÏÊÇ·ñÎ¨Ò»½â
+	bool solveSudoku(int i, int j);//Õë¶Ôgrid½â¾Ö
+};//Êý¶ÀÀà
+
+struct SudokuCmp {
+<span style = "background-color:#dfd">	bool operator()(const Sudoku&amp; obj1, const Sudoku&amp; obj2) const {
+		return obj1.grid &lt; obj2.grid;
+	}</span>
+};
+
+<span style = "background-color:#dfd">set&lt;Sudoku, SudokuCmp&gt; Finals;//Êý¶ÀÖÕ¾Ö¼¯ºÏ</span>
+
+<span style = "background-color:#dfd">vector&lt;Sudoku&gt; SudokuGame;//Êý¶ÀÓÎÏ·¼¯ºÏ</span>
+
+<span style = "background-color:#dfd">vector&lt;Sudoku&gt; SovledGame;//½â¾ÖÓÎÏ·¼¯ºÏ</span>
+
+void Para_Handle(int argc, char* argv[]);//ÊäÈë²ÎÊý´¦Àí
+
+bool InRange(int num, int min, int max);//ÅÐ¶ÏÕûÐÎnumÊÇ·ñÔÚ·¶Î§ÄÚ
+
+static void Save2File(const vector&lt;Sudoku&gt;&amp; finals, const string&amp; filepath);//±£´æÖÕ¾ÖsÖÁÎÄ¼þ¶ÔÓÚvector
+
+static void Save2File(const set&lt;Sudoku, SudokuCmp&gt;&amp; finals, const string&amp; filepath);//±£´æÖÕ¾ÖsÖÁÎÄ¼þ¶ÔÓÚset
+
+static int Load2SdkGame(string&amp; filepath);//¼ÓÔØÊý¶ÀÓÎÏ·
+
+void gen_sudokugame(int r1, int r2, int m = 1, bool u = 0);//Éú³ÉÓÎÏ·¿ª¾Ö,mÎªÄÑ¶È£¨1-3£©£¬nÅÐ¶ÏÎ¨Ò»½â£¨0Ã»ÓÐ£©
+
+void SovleSdkg();//½âSudokuGameÖÐËùÓÐÊý¶ÀÓÎÏ·
+
+//Ä¬ÈÏ¹¹Ôì
+<span style = "background-color:#dfd">Sudoku::Sudoku() {
+	grid.resize(GRID_SIZE, vector&lt;int&gt;(GRID_SIZE));
+	for (int i = 0; i &lt; GRID_SIZE; i++)
+		for (int j = 0; j &lt; GRID_SIZE; j++)
+			grid[i][j] = 0;
+}</span>
+
+//¿½±´¹¹Ôì
+Sudoku::Sudoku(const Sudoku&amp; sudoku)
+<span style = "background-color:#dfd">{
+	grid.resize(GRID_SIZE, vector&lt;int&gt;(GRID_SIZE));
+	for (int i = 0; i &lt; GRID_SIZE; i++)
+		for (int j = 0; j &lt; GRID_SIZE; j++)
+			this-&gt;grid[i][j] = sudoku.grid[i][j];
+}</span>
+
+void Sudoku::Gen_Final(int fline[])
+<span style = "background-color:#dfd">{</span>
+	//Ê×ÐÐ
+<span style = "background-color:#dfd">	for (int i = 0; i &lt; GRID_SIZE; i++)this-&gt;grid[0][i] = fline[i];</span>
+	//ÆäÓà
+<span style = "background-color:#dfd">	for (int i = 1; i &lt; GRID_SIZE; i++)
+		for (int j = 0; j &lt; GRID_SIZE; j++)
+			this-&gt;grid[i][j] = this-&gt;grid[0][(j + shift[i - 1]) % 9];</span>
+	return;
+<span style = "background-color:#dfd">}</span>
+
+void Sudoku::Gen_Finals(int n)
+<span style = "background-color:#dfd">{
+	Finals.clear();
+	while (Finals.size() &lt; n &amp;&amp; Finals.size() &lt; FIR_INT) {
+		this-&gt;Gen_Final(initial_line);
+		Finals.insert(*this);
+		next_permutation(initial_line, initial_line + 9);
+	}
+	while (Finals.size() &lt; n) {
+		for (const auto&amp; f : Finals) {
+			Sudoku sdk1(f);
+			swap(sdk1.grid[1], sdk1.grid[2]);
+			Finals.insert(sdk1);
+			if (Finals.size() == n) break;
+			Sudoku sdk2(f);
+			swap(sdk2.grid[4], sdk2.grid[5]);
+			Finals.insert(sdk2);
+			if (Finals.size() == n) break;
+			Sudoku sdk3(f);
+			swap(sdk3.grid[7], sdk3.grid[8]);
+			Finals.insert(sdk3);
+			if (Finals.size() == n) break;
+		}
+	}
+}</span>
+
+void Sudoku::generate_empty(int r1, int r2, int m)
+<span style = "background-color:#dfd">{
+	srand(time(NULL));
+	int emptynum = 0;
+	switch (m) {
+	case 1: m = 21; break;
+	case 2: m = 26; break;
+	case 3: m = 30; break;</span>
+<span style = "background-color:#fdd">	default:cout &lt;&lt; "ÄÑ¶È´íÎó" &lt;&lt; endl;</span>
+	}
+	int random;
+<span style = "background-color:#dfd">	for (int row = 0; row &lt; GRID_SIZE; row++) {
+		for (int col = 0; col &lt; GRID_SIZE; col++) {
+			random = rand() % 36;
+			if (random &lt; m) {
+				grid[row][col] = 0;
+				emptynum++;
+				if (emptynum &gt;= r2)</span>
+<span style = "background-color:#fdd">					return;</span>
+			}
+<span style = "background-color:#dfd">		}
+	}
+	if (emptynum &lt; r1) {
+		while (emptynum &lt; r1) {
+			for (int row = 0; row &lt; GRID_SIZE; row++) {
+				for (int col = 0; col &lt; GRID_SIZE; col++) {
+					random = rand() % 2;
+					if (grid[row][col] != 0 &amp;&amp; random == 0) {
+						grid[row][col] = 0;
+						emptynum++;</span>
+					}
+<span style = "background-color:#dfd">				}
+			}
+		}</span>
+	}
+<span style = "background-color:#dfd">}</span>
+
+<span style = "background-color:#dfd">void Sudoku::generate_only_empty(int m) {
+	srand(time(NULL));
+	switch (m) {
+	case 1: m = 25; break;</span>
+<span style = "background-color:#fdd">	case 2: m = 27; break;
+	case 3: m = 28; break;
+	default:cout &lt;&lt; "ÄÑ¶È´íÎó" &lt;&lt; endl;</span>
+	}
+<span style = "background-color:#dfd">	vector&lt;vector&lt;int&gt;&gt; empty_grid = grid;</span>
+	int random;
+<span style = "background-color:#dfd">	for (int row = 0; row &lt; GRID_SIZE; row++) {
+		for (int col = 0; col &lt; GRID_SIZE; col++) {
+			random = rand() % 36;
+			if (random &lt; m) {
+				grid[row][col] = 0;
+				solvenum = 0;
+				isonly(0, 0);
+				if (solvenum == 1) {
+					empty_grid[row][col] = 0;</span>
+				}
+<span style = "background-color:#dfd">				grid = empty_grid;</span>
+			}
+<span style = "background-color:#dfd">		}
+	}
+	grid = empty_grid;
+}</span>
+
+bool Sudoku::isSafe(int row, int col, int num)
+<span style = "background-color:#dfd">{</span>
+	// ¼ì²éÐÐÖÐÊÇ·ñÓÐÖØ¸´Êý×Ö
+<span style = "background-color:#dfd">	for (int i = 0; i &lt; GRID_SIZE; i++) {
+		if (grid[row][i] == num) {
+			return false;</span>
+		}
+<span style = "background-color:#dfd">	}</span>
+	// ¼ì²éÁÐÖÐÊÇ·ñÓÐÖØ¸´Êý×Ö
+<span style = "background-color:#dfd">	for (int i = 0; i &lt; GRID_SIZE; i++) {
+		if (grid[i][col] == num) {
+			return false;</span>
+		}
+<span style = "background-color:#dfd">	}</span>
+	// ¼ì²éµ¥Ôª¸ñÖÐÊÇ·ñÓÐÖØ¸´Êý×Ö
+<span style = "background-color:#dfd">	int startRow = row - row % 3;
+	int startCol = col - col % 3;
+	for (int i = 0; i &lt; 3; i++) {
+		for (int j = 0; j &lt; 3; j++) {
+			if (grid[i + startRow][j + startCol] == num) {
+				return false;</span>
+			}
+<span style = "background-color:#dfd">		}
+	}
+	return true;
+}</span>
+
+<span style = "background-color:#dfd">void Sudoku::isonly(int i, int j) {
+	if (solvenum &gt;= 2)return;
+	int row = i;
+	int col = j;</span>
+	//bool temp = true;
+<span style = "background-color:#dfd">	for (; row &lt; GRID_SIZE; row++) {
+		for (; col &lt; GRID_SIZE; col++) {
+			if (grid[row][col] == 0) {</span>
+				// ³¢ÊÔÌî³ä1µ½9µÄÊý×Ö
+<span style = "background-color:#dfd">				for (int num = 1; num &lt;= 9; num++) {
+					if (solvenum &gt;= 2)return;
+					if (isSafe(row, col, num)) {</span>
+						// Èç¹ûÌî³äµÄÊý×Ö°²È«£¬Ôò¼ÌÐøµÝ¹éÌî³äÏÂÒ»¸öÎ»ÖÃ
+<span style = "background-color:#dfd">						grid[row][col] = num;
+						isonly(row, col);
+						grid[row][col] = 0;</span>
+					}
+<span style = "background-color:#dfd">				}</span>
+				// Èç¹ûÎÞ·¨Ìî³äÈÎºÎÊý×Ö£¬Ôò·µ»Øfalse
+				//if (!temp)
+<span style = "background-color:#dfd">				return;</span>
+			}
+<span style = "background-color:#dfd">		}
+		col = 0;
+	}</span>
+	// Èç¹ûËùÓÐÎ»ÖÃ¶¼Ìî³äÁËÊý×Ö£¬Ôò·µ»Øtrue£¬±íÊ¾³É¹¦½â¿ªÁËÊý¶À
+<span style = "background-color:#dfd">	solvenum++;</span>
+	return;
+<span style = "background-color:#dfd">}</span>
+
+bool Sudoku::solveSudoku(int i, int j)
+<span style = "background-color:#dfd">{
+	int row = i;
+	int col = j;
+	for (; row &lt; GRID_SIZE; row++) {
+		for (; col &lt; GRID_SIZE; col++) {
+			if (grid[row][col] == 0) {</span>
+				// ³¢ÊÔÌî³ä1µ½9µÄÊý×Ö
+<span style = "background-color:#dfd">				for (int num = 1; num &lt;= 9; num++) {
+					if (isSafe(row, col, num)) {</span>
+						// Èç¹ûÌî³äµÄÊý×Ö°²È«£¬Ôò¼ÌÐøµÝ¹éÌî³äÏÂÒ»¸öÎ»ÖÃ
+<span style = "background-color:#dfd">						grid[row][col] = num;
+						if (solveSudoku(row, col))
+							return true;</span>
+						//solveSudoku();
+<span style = "background-color:#dfd">						grid[row][col] = 0;</span>
+
+					}
+<span style = "background-color:#dfd">				}</span>
+				// Èç¹ûÎÞ·¨Ìî³äÈÎºÎÊý×Ö£¬Ôò·µ»Øfalse
+<span style = "background-color:#dfd">				return false;</span>
+			}
+<span style = "background-color:#dfd">		}
+		col = 0;
+	}</span>
+	// Èç¹ûËùÓÐÎ»ÖÃ¶¼Ìî³äÁËÊý×Ö£¬Ôò·µ»Øtrue£¬±íÊ¾³É¹¦½â¿ªÁËÊý¶À
+	//SovledGame.push_back(*this);
+<span style = "background-color:#dfd">	return true;
+}</span>
+
+void gen_sudokugame(int r1, int r2, int m, bool u)
+<span style = "background-color:#dfd">{
+	if (!u)
+		for (auto f : Finals) {
+			f.generate_empty(r1, r2,m);
+			SudokuGame.push_back(f);
+		}</span>
+	else {
+<span style = "background-color:#dfd">		for (auto f : Finals) {
+			f.generate_only_empty(m);
+			SudokuGame.push_back(f);
+		}</span>
+	}
+<span style = "background-color:#dfd">}</span>
+
+void SovleSdkg()
+<span style = "background-color:#dfd">{
+	for (auto g : SudokuGame) {
+		g.solveSudoku(0, 0);
+		SovledGame.push_back(g);
+	}
+}</span>
+
+<span style = "background-color:#dfd">bool InRange(int num, int min, int max) {
+	return num &gt;= min &amp;&amp; num &lt;= max;
+}</span>
+
+<span style = "background-color:#dfd">static void Save2File(const vector&lt;Sudoku&gt;&amp; finals, const string&amp; filepath) {
+	ofstream file(filepath);//¸²¸ÇÐ´Ä£Ê½
+	int count = 1;
+	if (file.is_open()) {
+		for (const auto&amp; f : finals) {
+			file &lt;&lt; "ÅÌÃæ" &lt;&lt; count &lt;&lt; endl;
+			for (const auto&amp; r : f.grid) {
+				for (int v : r) {
+					if (v == 0)
+						file &lt;&lt; "$" &lt;&lt; " ";
+					else file &lt;&lt; v &lt;&lt; " ";
+				}
+				file &lt;&lt; endl;
+			}
+			count++;
+		}
+		file.close();
+		cout &lt;&lt; "ÒÑ½«" &lt;&lt; count - 1 &lt;&lt; "¸öÖÕ¾Ö/ÓÎÏ·Ð´ÈëÎÄ¼þ" &lt;&lt; filepath &lt;&lt; endl;
+	}</span>
+	else {
+<span style = "background-color:#fdd">		cerr &lt;&lt; "´ò¿ªÎÄ¼þÊ§°Ü£¡" &lt;&lt; filepath &lt;&lt; endl;</span>
+	}
+<span style = "background-color:#dfd">}</span>
+
+<span style = "background-color:#dfd">static void Save2File(const set&lt;Sudoku, SudokuCmp&gt;&amp; finals, const string&amp; filepath) {
+	ofstream file(filepath);//¸²¸ÇÐ´Ä£Ê½
+	int count = 1;
+	if (file.is_open()) {
+		for (const auto&amp; f : finals) {
+			file &lt;&lt; "ÖÕ¾Ö" &lt;&lt; count &lt;&lt; endl;
+			for (const auto&amp; r : f.grid) {
+				for (int v : r) {
+					if (v == 0)</span>
+<span style = "background-color:#fdd">						file &lt;&lt; "$" &lt;&lt; " ";</span>
+<span style = "background-color:#dfd">					else file &lt;&lt; v &lt;&lt; " ";
+				}
+				file &lt;&lt; endl;
+			}
+			count++;
+		}
+		file.close();
+		cout &lt;&lt; "ÒÑ½«" &lt;&lt; count - 1 &lt;&lt; "¸öÖÕ¾Ö/ÓÎÏ·Ð´ÈëÎÄ¼þ" &lt;&lt; filepath &lt;&lt; endl;
+	}</span>
+	else {
+<span style = "background-color:#fdd">		cerr &lt;&lt; "´ò¿ªÎÄ¼þÊ§°Ü£¡" &lt;&lt; filepath &lt;&lt; endl;</span>
+	}
+<span style = "background-color:#dfd">}</span>
+
+int Load2SdkGame(string&amp; filepath)
+<span style = "background-color:#dfd">{
+	ifstream file(filepath);
+	if (!file.is_open()) { cout &lt;&lt; "ÇëÊäÈëÕýÈ·µÄÎÄ¼þÂ·¾¶£¡" &lt;&lt; endl; return -1; }
+	string line;
+	int index = 0;
+	Sudoku sdk;
+	while (getline(file, line)) {
+		if (index % 10) {
+			for (int i = 0; i &lt; GRID_SIZE; i++) {
+				if (line[i * 2] == '$')
+					sdk.grid[index % 10 - 1][i] = 0;</span>
+				else
+<span style = "background-color:#dfd">					sdk.grid[index % 10 - 1][i] = (line[i * 2] - '0');
+			}</span>
+		}
+<span style = "background-color:#dfd">		if (index % 10 == 9) {
+			SudokuGame.push_back(sdk);</span>
+		}
+<span style = "background-color:#dfd">		index++;
+	}
+	cout &lt;&lt; "¶ÁÈ¡ÎÄ¼þ³É¹¦" &lt;&lt; endl;
+	return index / 10;
+}</span>
+
+<span style = "background-color:#dfd">void Para_Handle(int argc, char* argv[]) {
+	int c(0);//ÖÕ¾Ö¸öÊý
+	int n(0);//ÓÎÏ·ÊýÁ¿
+	int m(1);//ÓÎÏ·ÄÑ¶È
+	int min(0);//ÍÚ¿Õ×îÐ¡Öµ
+	int max(81);//ÍÚ¿Õ×î´óÖµ
+	string filepath;
+	Sudoku sdk;</span>
+
+<span style = "background-color:#dfd">	if (argc == 1) { cout &lt;&lt; "ÇëÊäÈë²ÎÊý£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }</span>
+
+<span style = "background-color:#dfd">	string fir_arg = argv[1];//»ñÈ¡µÚÒ»¸ö²ÎÊý
+	if (fir_arg == "-c") {</span>
+		//Éú³ÉÓÎÏ·ÖÕ¾Ö
+<span style = "background-color:#dfd">		if (argc == 3) {
+			c = stoi(argv[2]);
+			if (InRange(c, 1, 1000000)) {
+				sdk.Gen_Finals(c);
+				Save2File(Finals, "Finals.txt");
+				return;</span>
+<span style = "background-color:#fdd">			}</span>
+<span style = "background-color:#dfd">			else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈëÒªÉú³ÉµÄÖÕ¾ÖÊýÁ¿£¬·¶Î§1~100w" &lt;&lt; endl; return; }</span>
+<span style = "background-color:#fdd">		}</span>
+<span style = "background-color:#dfd">		else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý-c &lt;count&gt;£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }</span>
+<span style = "background-color:#fdd">	}</span>
+<span style = "background-color:#dfd">	else if (fir_arg == "-s") {</span>
+		//¸ù¾ÝÎÄ¼þ½â¾Ö
+<span style = "background-color:#dfd">		if (argc == 3) {
+			filepath = argv[2];
+			n = Load2SdkGame(filepath);
+			if (n == -1)return;//´íÎóÎÄ¼þÂ·¾¶</span>
+			else {
+<span style = "background-color:#dfd">				SovleSdkg();
+				Save2File(SovledGame, "Ans.txt");</span>
+			}
+<span style = "background-color:#dfd">		}
+		else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý-s &lt;filepath&gt;£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }
+	}
+	else if (fir_arg == "-n") {</span>
+		//Éú³ÉÓÎÏ·
+<span style = "background-color:#dfd">		if (argc &lt; 3) { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý-n &lt;count&gt;£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }
+		n = stoi(argv[2]);
+		if (!InRange(n, 1, 10000)) { cout &lt;&lt; "ÇëÕýÈ·ÊäÈëÒªÉú³ÉµÄÖÕ¾ÖÊýÁ¿£¬·¶Î§1~1w" &lt;&lt; endl; return; }
+		if (argc == 3) {
+			sdk.Gen_Finals(n);
+			gen_sudokugame(min, max);
+			Save2File(SudokuGame, "SudokuGame.txt");
+			return;</span>
+<span style = "background-color:#fdd">		}</span>
+<span style = "background-color:#dfd">		else if (argc == 4) {
+			string sec_arg = argv[3];
+			if (sec_arg == "-u") {
+				sdk.Gen_Finals(n);
+				gen_sudokugame(min, max, m, true);
+				Save2File(SudokuGame, "SudokuGame.txt");
+				return;</span>
+<span style = "background-color:#fdd">			}</span>
+<span style = "background-color:#dfd">			else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }</span>
+<span style = "background-color:#fdd">		}</span>
+<span style = "background-color:#dfd">		else if (argc == 5) {
+			string sec_arg = argv[3];
+			if (sec_arg == "-m") {
+				m = stoi(argv[4]);
+				if (InRange(m, 1, 3)) {
+					sdk.Gen_Finals(n);
+					gen_sudokugame(min, max, m);
+					Save2File(SudokuGame, "SudokuGame.txt");
+					return;</span>
+<span style = "background-color:#fdd">				}</span>
+<span style = "background-color:#dfd">				else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý-m &lt;mode&gt;£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }</span>
+<span style = "background-color:#fdd">			}</span>
+<span style = "background-color:#dfd">			else if (sec_arg == "-r") {
+				istringstream range(argv[4]);
+				string rmin, rmax;
+				getline(range, rmin, '~');
+				getline(range, rmax, '~');
+				min = stoi(rmin);
+				max = stoi(rmax);
+				if (min &gt; max || !InRange(max, 20, 55) || !InRange(min, 20, 55)) { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý-r &lt;range&gt;£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }
+				sdk.Gen_Finals(n);
+				gen_sudokugame(min, max);
+				Save2File(SudokuGame, "SudokuGame.txt");
+				return;</span>
+			}
+<span style = "background-color:#fdd">		}</span>
+		/*else if (argc == 7) {
+			{ cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý" &lt;&lt; endl; return; }
+		}*/
+<span style = "background-color:#dfd">		else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý-n &lt;count&gt;£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }</span>
+<span style = "background-color:#fdd">	}</span>
+<span style = "background-color:#dfd">	else { cout &lt;&lt; "ÇëÕýÈ·ÊäÈë²ÎÊý£¬¾ßÌåÊ¹ÓÃ·½·¨²Î¼ûÓÃ»§ÊÖ²á" &lt;&lt; endl; return; }
+}</span>
+
+<span style = "background-color:#dfd">int main(int argc, char* argv[]) {
+	Para_Handle(argc, argv);
+	return 0;
+}</span></pre>
+        <hr />
+        <table width="100%">
+            <thead>
+                <tr>
+                    <th align="center">
+                        <small>Generated by</small>
+                        <a href="https://github.com/OpenCppCoverage/OpenCppCoverage/releases">
+                            <strong>OpenCppCoverage (Version: 0.9.9.0)</strong>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </body>
+</html>
